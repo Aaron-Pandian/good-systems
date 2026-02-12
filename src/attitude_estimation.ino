@@ -32,7 +32,7 @@ void setup() {
   IMU.begin();
   Serial.begin(9600);
 
-  // Caibration of Magnetometer - Replaceable
+  // Caibration of Magnetometer
   IMU.setMagnetFS(0);
   IMU.setMagnetODR(8);
   IMU.setMagnetOffset(19.246216, 18.193359, 3.260498);
@@ -40,10 +40,9 @@ void setup() {
   // End of Calibration Values
   IMU.magnetUnit = MICROTESLA;
 
-  Wire.begin(); // initiate Wire library
+  Wire.begin(); // Initiate wire library
   Wire.beginTransmission(ADXL345); // Start communicating with the device
-  Wire.write(0x2D); // Access/ talk to POWER_CTL Register - 0x2D
-  // Enable measurement
+  Wire.write(0x2D); 
   Wire.write(8); // Bit D3 High for measuring enable (8dec -> 0000 1000 binary)
   Wire.endTransmission();
   delay(10);
@@ -61,7 +60,6 @@ void setup() {
   Wire.write(-2);
   Wire.endTransmission();
   delay(10);
-
   //Z-axis
   Wire.beginTransmission(ADXL345);
   Wire.write(0x20);
@@ -110,21 +108,10 @@ void loop() {
   pitch = ((pitch + gyroy * dt) * .94) + (thetaM * .06);
   roll = ((roll - gyrox * dt) * .94) + (phiM * .06);
 
-  /* Not that great
-    // Madwick Sensor Fusion for Yaw
-    filter.update(gyrox, gyroy, gyroz, accelx, accely, accelz, magx, magy, magz);
-    yaw = filter.getYaw();
-  */
-
   // Yaw Calculation from Library - Calibrated
   doNMeasurements (50, magx, magy, magz);
   float yaw = atan2(magy, magx) * 180 / PI;
 
-  /* Use for Processing Animation, for actual data, in working orientation the Roll angle is useless
-   *  Also, if using processing, the roll and pitch are inverse so -roll and -pitch would be what the processing software needs to accuratly protray motion
-  Serial.print(roll);
-  Serial.print("/");
-  */
   Serial.print(pitch-90);
   Serial.print("/");
   Serial.println(yaw);
